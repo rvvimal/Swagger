@@ -8,6 +8,7 @@ import com.school_management.repository.SchoolRepository;
 import com.school_management.repository.TutorRepository;
 import com.school_management.util.Constant;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,5 +62,7 @@ public class TutorService {
         }
         return this.tutorRepository.save(tutors);
     }
+
+
 }
 

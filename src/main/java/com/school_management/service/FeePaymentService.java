@@ -67,6 +67,7 @@ private StudentRepository studentRepository;
         return this.feePaymentRepository.save(feePayments);
     }
 
+
     public List<SchoolFeeDetailsDTO> getfeepayment() {
         List<FeePayment> students = this.feePaymentRepository.findAllFeePayments();
         List<SchoolFeeDetailsDTO> schoolDetailsDTOS = new ArrayList<>();

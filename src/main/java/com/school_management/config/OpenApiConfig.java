@@ -21,7 +21,7 @@ public class OpenApiConfig {
                                 .scheme("bearer")
                                 .bearerFormat("JWT")))
                 .info(new Info()
-                        .title("School Management  API")
+                        .title("School Management API")
                         .version("1.0")
                         .description("API documentation for School Management application"));
     }

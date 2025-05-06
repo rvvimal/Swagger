@@ -12,4 +12,5 @@ public class TutorSalaryDTO {
     private String tutorName;
     private Double amount;
     private int schoolId;
+    private String schoolName;
 }

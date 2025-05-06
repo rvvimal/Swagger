@@ -76,12 +76,12 @@ public class StudentService {
         return this.studentRepository.save(students);
     }
 
-    public PaginationResponse getSortedStudentPage(final int pageIndex, final int pageSize, final String field, final boolean sort) {
+    public PaginationResponse getSortedStudentPage(final int pageIndex, final int pageSize, final String field, final boolean sort,final String search) {
         if (pageIndex < 0 || pageSize <= 0) {
             throw new RuntimeException(Constant.NOT_FOUND);
         }
         Pageable pageable = PageRequest.of(pageIndex, pageSize, Sort.by(sort ? Sort.Direction.ASC : Sort.Direction.DESC, field));
-        Page<Student> studentPage = this.studentRepository.findAll(pageable);
+        Page<Student> studentPage = this.studentRepository.findStudentByName(search,pageable);
         return new PaginationResponse(
                 studentPage.getTotalPages(),
                 studentPage.getTotalElements(),
@@ -89,6 +89,20 @@ public class StudentService {
                 studentPage.getContent()
         );
     }
+
+//    public ResponseDto getStudentBySortingAndSearching(final int pageNumber, final int pageSize, final boolean order, final String name, final String search) {
+//        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(order ? Sort.Direction.ASC : Sort.Direction.DESC, name));
+//        Page<Student> studentSearch = this.studentRepository.findStudentByNameOrCity(search,pageable);
+//        return ResponseDto.builder()
+//                .message(Constants.RETRIEVED)
+//                .data(studentSearch)
+//                .statusCode(HttpStatus.OK.value())
+//                .build();
+//    }
+//
+
+
+
 
     public List<StudentDetailsDTO> getStudentWithCourses(int id) {
         return studentRepository.findStudentWithCourses(id);

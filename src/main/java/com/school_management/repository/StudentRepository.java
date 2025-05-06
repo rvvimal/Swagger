@@ -2,6 +2,8 @@ package com.school_management.repository;
 
 import com.school_management.dto.StudentDetailsDTO;
 import com.school_management.entity.Student;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -21,6 +23,14 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
             "WHERE s.id = :id " +
             "GROUP BY s.id", nativeQuery = true)
     List<StudentDetailsDTO> findStudentWithCourses(@Param("id") int id);
+
+    @Query("""
+    SELECT student FROM Student student
+    JOIN student.school s
+    WHERE CAST(student.id AS string) LIKE CONCAT('%', :search, '%')
+       OR LOWER(student.firstName) LIKE LOWER(CONCAT('%', :search, '%'))
+""")
+    Page<Student> findStudentByName(@Param("search") String search, Pageable pageable);
 
 }
 

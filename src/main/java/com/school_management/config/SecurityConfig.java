@@ -10,6 +10,7 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -21,6 +22,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
     @Autowired
     private UserDetailsService userDetailsService;
@@ -44,7 +46,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/feePayment/**").hasAnyAuthority(Role.ADMIN.name())
                         .requestMatchers("/api/v1/studentCourse/**").hasAnyAuthority(Role.STUDENT.name(), Role.ADMIN.name(), Role.TEACHER.name())
                         .requestMatchers("/api/v1/tutorCourse/**").hasAnyAuthority(Role.TEACHER.name(), Role.ADMIN.name())
-                        .requestMatchers("/api/v1/tutorSalary/**").hasAnyAuthority(Role.ADMIN.name())
+                        .requestMatchers("/api/v1/tutorSalary/**").hasAnyAuthority(Role.ADMIN.name(), Role.TEACHER.name())
                         .anyRequest().authenticated())
                 .exceptionHandling(exception -> exception.accessDeniedHandler(customAccessDeniedHandler))
                 .httpBasic(Customizer.withDefaults())

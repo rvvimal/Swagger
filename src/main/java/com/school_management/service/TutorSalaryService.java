@@ -9,7 +9,10 @@ import com.school_management.exception.UserNotFoundException;
 import com.school_management.repository.TutorRepository;
 import com.school_management.repository.TutorSalaryRepository;
 import com.school_management.util.Constant;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeMap;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,11 +25,13 @@ public class TutorSalaryService {
     private TutorSalaryRepository tutorSalaryRepository;
     @Autowired
     private TutorRepository tutorRepository;
+    @Autowired
+    private ModelMapper modelMapper;
 
     @Transactional
     public TutorSalary createTutorSalary(final TutorSalary tutorSalary) {
-        int tutorId=tutorSalary.getTutor().getId();
-        Tutor tutor=tutorRepository.findById(tutorId).orElseThrow(()->new SchoolNotFoundException("Tutor with ID "+ tutorId + " not found"));
+        int tutorId = tutorSalary.getTutor().getId();
+        Tutor tutor = tutorRepository.findById(tutorId).orElseThrow(() -> new SchoolNotFoundException("Tutor with ID " + tutorId + " not found"));
         tutorSalary.setTutor(tutor);
         return this.tutorSalaryRepository.save(tutorSalary);
     }
@@ -35,8 +40,24 @@ public class TutorSalaryService {
         return this.tutorSalaryRepository.findAll();
     }
 
-    public TutorSalary findById(final int id) {
-        return this.tutorSalaryRepository.findById(id).orElseThrow(() -> new RuntimeException(Constant.ID_DOES_NOT_EXIST));
+    public TutorSalaryDTO findById(final int id) {
+        final TutorSalary tutor = this.tutorSalaryRepository.findById(id).orElseThrow(() -> new RuntimeException(Constant.ID_DOES_NOT_EXIST));
+        if (SecurityContextHolder.getContext().getAuthentication().getName().equals(tutor.getTutor().getEmail()) ||
+                SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+                        .anyMatch(auth -> auth.getAuthority().equals("ADMIN"))
+        ) {
+//            TutorSalaryDTO dto = new TutorSalaryDTO();
+            TutorSalaryDTO dto = modelMapper.map(tutor, TutorSalaryDTO.class);
+            dto.setTutorId(tutor.getTutor().getId());
+            dto.setTutorName(tutor.getTutor().getName());
+            dto.setSchoolId(tutor.getTutor().getSchool().getId());
+            dto.setSchoolName(tutor.getTutor().getSchool().getName());
+
+            return dto;
+        } else {
+            throw new RuntimeException("User Does not have the access");
+        }
+
     }
 
 
@@ -84,5 +105,22 @@ public class TutorSalaryService {
         return tutorSalaryDTOS;
     }
 
+    @Transactional
+    public TutorSalary patchById(final TutorSalary tutorSalary, final int id) {
+        final TutorSalary tutor = this.tutorSalaryRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(Constant.ID_DOES_NOT_EXIST));
+
+        if (tutorSalary.getMonth() != null) {
+            tutor.setMonth(tutorSalary.getMonth());
+        }
+
+        if (tutorSalary.getAmount() != 0) {
+            tutor.setAmount(tutorSalary.getAmount());
+        }
+        if (tutorSalary.getPaid() != null) {
+            tutor.setPaid(tutorSalary.getPaid());
+        }
+        return this.tutorSalaryRepository.save(tutor);
+    }
 
 }
